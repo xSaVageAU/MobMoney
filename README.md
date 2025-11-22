@@ -6,8 +6,6 @@ A simple, configurable Fabric mod that awards players money for killing mobs. Bu
 
 *   **Earn Money**: Get paid for hunting down hostile mobs.
 *   **Configurable**:
-    *   Enable/Disable the mod entirely.
-    *   Set a default reward amount.
     *   Set custom rewards per mob type (e.g., Zombies, Creepers, Ender Dragon).
     *   **Economy Provider Support**: Configure which economy mod to use (e.g., Savs Common Economy, Fuji, etc.).
 *   **Common Economy API**: Works with any economy mod that implements the Common Economy API.

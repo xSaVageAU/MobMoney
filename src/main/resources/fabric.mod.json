@@ -1,0 +1,29 @@
+{
+	"schemaVersion": 1,
+	"id": "mob-money",
+	"version": "${version}",
+	"accessWidener": "mob-money.accesswidener",
+	"name": "Mob Money",
+	"description": "A simple mod to test Common Economy API integration.",
+	"authors": [
+		"Savage"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"savage.mobmoney.MobMoneyMod"
+		]
+	},
+	"mixins": [],
+	"depends": {
+		"fabricloader": ">=0.14.21",
+		"minecraft": "~1.21",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}

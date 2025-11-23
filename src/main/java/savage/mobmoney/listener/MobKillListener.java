@@ -10,6 +10,8 @@ import savage.mobmoney.MobMoneyMod;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import savage.mobmoney.config.MobMoneyConfig;
 
 public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
     @Override
@@ -33,8 +35,6 @@ public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
                 var provider = CommonEconomy.getProvider(currencyId.getNamespace());
                 if (provider == null) {
                     MobMoneyMod.LOGGER.warn("Provider not found with ID: {}", currencyId.getNamespace());
-                    // Fallback: Try to find provider that handles this currency? 
-                    // The API doesn't expose a simple "get provider for currency" without iterating.
                     return;
                 }
                 
@@ -61,9 +61,30 @@ public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
                 var account = provider.getAccount(player.getCommandSource().getWorld().getServer(), player.getGameProfile(), accountId);
                 
                 if (account != null) {
-                    // Note: SavsCommonEconomy treats this value as whole currency units (e.g. Dollars), not cents.
-                    account.increaseBalance((long) amount);
-                    MobMoneyMod.LOGGER.info("Awarded ${} to {} for killing {}", amount, player.getName().getString(), entityId);
+                    try {
+                        account.increaseBalance((long) amount);
+                        boolean success = true; // Assume success if no exception
+                        MobMoneyMod.LOGGER.info("Awarded ${} to {} for killing {}", amount, player.getName().getString(), entityId);
+
+                        if (success) {
+                            if (MobMoneyMod.CONFIG.notificationMode != MobMoneyConfig.NotificationMode.NONE) {
+                                String message = String.format("You earned %s%.2f for killing %s", 
+                                    currencyId.getPath().equals("dollar") ? "$" : "", 
+                                    amount, 
+                                    entity.getType().getName().getString());
+                                
+                                if (MobMoneyMod.CONFIG.notificationMode == MobMoneyConfig.NotificationMode.ACTION_BAR) {
+                                    player.sendMessage(Text.of(message), true);
+                                } else {
+                                    player.sendMessage(Text.of(message), false);
+                                }
+                            }
+                        } else {
+                            MobMoneyMod.LOGGER.error("Failed to deposit money for player: {}", player.getName().getString());
+                        }
+                    } catch (Exception e) {
+                        MobMoneyMod.LOGGER.error("Error depositing money for player {}: {}", player.getName().getString(), e.getMessage());
+                    }
                 } else {
                     MobMoneyMod.LOGGER.warn("Failed to get account for {} with ID {}", player.getName().getString(), accountId);
                 }

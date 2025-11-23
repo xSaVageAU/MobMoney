@@ -17,7 +17,14 @@ public class MobMoneyConfig {
 
     public String economyProvider = "savs_common_economy";
     public String currencyId = "dollar";
+    public NotificationMode notificationMode = NotificationMode.CHAT;
     public Map<String, Double> mobPrices = new HashMap<>();
+
+    public enum NotificationMode {
+        CHAT,
+        ACTION_BAR,
+        NONE
+    }
 
     public MobMoneyConfig() {
         mobPrices.put("minecraft:zombie", 5.0);

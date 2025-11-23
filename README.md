@@ -24,6 +24,7 @@ The config file is located at `config/mob-money.json`. It will be generated upon
 {
   "economyProvider": "savs_common_economy",
   "currencyId": "dollar",
+  "notificationMode": "CHAT",
   "mobPrices": {
     "minecraft:zombie": 5.0,
     "minecraft:skeleton": 5.0,
@@ -39,6 +40,7 @@ The config file is located at `config/mob-money.json`. It will be generated upon
 
 *   `economyProvider`: The ID of the economy provider to use (e.g., `savs_common_economy`, `fuji`).
 *   `currencyId`: The ID of the currency to award (e.g., `dollar`, `gold`).
+*   `notificationMode`: How to notify players of earnings. Options: `CHAT`, `ACTION_BAR`, `NONE` (default: `CHAT`).
 *   `mobPrices`: A **whitelist** of mobs and their reward values.
     *   **Only mobs listed here will award money.**
     *   Use the full entity ID (e.g., `minecraft:zombie`).

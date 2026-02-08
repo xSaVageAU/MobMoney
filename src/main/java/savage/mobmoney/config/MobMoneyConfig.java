@@ -21,15 +21,22 @@ public class MobMoneyConfig {
     public NotificationMode notificationMode = NotificationMode.CHAT;
     public Map<String, Double> mobPrices = new HashMap<>();
 
-    // Balancing Settings
-    public double maxEarningsPerPeriod = 100.0; // Set to 0 to disable
-    public int earningPeriodDuration = 1200; // Seconds (20 minutes)
-
     public enum NotificationMode {
         CHAT,
         ACTION_BAR,
         NONE
     }
+
+    public enum CapOverflowMode {
+        DROP, // If amount > remaining, award 0 (Hard cap)
+        PARTIAL, // If amount > remaining, award remaining
+        ALLOW // If current < max, award full amount (Soft cap)
+    }
+
+    // Balancing Settings
+    public double maxEarningsPerPeriod = 100.0; // Set to 0 to disable
+    public int earningPeriodDuration = 1200; // Seconds (20 minutes)
+    public CapOverflowMode overflowMode = CapOverflowMode.DROP;
 
     public MobMoneyConfig() {
         mobPrices.put("minecraft:zombie", 5.0);

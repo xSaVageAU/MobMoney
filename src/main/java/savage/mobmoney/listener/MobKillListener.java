@@ -28,7 +28,10 @@ public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
 
             if (amount >= 1) {
                 // Check if player has reached earning limit
-                if (!savage.mobmoney.manager.EarningsManager.canEarn(player.getUuid(), amount)) {
+                double allowedAmount = savage.mobmoney.manager.EarningsManager.calculateAllowedAmount(player.getUuid(),
+                        amount);
+
+                if (allowedAmount <= 0) {
                     if (savage.mobmoney.manager.EarningsManager.shouldNotify(player.getUuid())) {
                         long secondsLeft = savage.mobmoney.manager.EarningsManager.getTimeRemaining(player.getUuid());
                         String timeString;
@@ -42,6 +45,9 @@ public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
                     MobMoneyMod.LOGGER.debug("Player {} reached earning limit.", player.getName().getString());
                     return;
                 }
+
+                // Use allowedAmount for the transaction, not the original amount
+                amount = allowedAmount;
                 // Use configurable currency ID
                 Identifier currencyId = Identifier.of(MobMoneyMod.CONFIG.economyProvider,
                         MobMoneyMod.CONFIG.currencyId);

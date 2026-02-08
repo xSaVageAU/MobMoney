@@ -4,22 +4,39 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import savage.mobmoney.MobMoneyMod;
+import savage.mobmoney.config.MobMoneyConfig.CapOverflowMode;
 
 public class EarningsManager {
     private static final Map<UUID, PlayerData> playerData = new HashMap<>();
 
-    public static boolean canEarn(UUID playerUUID, double amount) {
+    public static double calculateAllowedAmount(UUID playerUUID, double amount) {
         PlayerData data = playerData.computeIfAbsent(playerUUID, k -> new PlayerData());
         data.checkPeriod();
 
-        // If config is 0, disable limit? Or just assume it's set.
-        // Let's assume users set it > 0. If it's <= 0, we can treat it as unlimited or
-        // disabled.
         double max = MobMoneyMod.CONFIG.maxEarningsPerPeriod;
         if (max <= 0)
-            return true;
+            return amount;
 
-        return (data.amountEarned + amount) <= max;
+        double current = data.amountEarned;
+        double remaining = max - current;
+
+        // If already at or over cap, allowed is 0
+        if (remaining <= 0)
+            return 0;
+
+        switch (MobMoneyMod.CONFIG.overflowMode) {
+            case PARTIAL:
+                // Return explicitly the smaller of the two
+                return Math.min(amount, remaining);
+            case ALLOW:
+                // If we are under the cap (remaining > 0), we allow the FULL amount
+                // even if it exceeds the remaining space.
+                return amount;
+            case DROP:
+            default:
+                // If amount fits, return it. If not, return 0.
+                return (amount <= remaining) ? amount : 0;
+        }
     }
 
     public static void addEarning(UUID playerUUID, double amount) {

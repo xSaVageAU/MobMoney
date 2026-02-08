@@ -34,7 +34,8 @@ The config file is located at `config/mob-money.json`. It will be generated upon
     "minecraft:wither": 500.0
   },
   "maxEarningsPerPeriod": 100.0,
-  "earningPeriodDuration": 1200
+  "earningPeriodDuration": 1200,
+  "overflowMode": "DROP"
 }
 ```
 
@@ -48,6 +49,10 @@ The config file is located at `config/mob-money.json`. It will be generated upon
     *   Use the full entity ID (e.g., `minecraft:zombie`).
 *   `maxEarningsPerPeriod`: The maximum amount a player can earn within the defined period. **Set to 0 to disable.** (Default: 100.0)
 *   `earningPeriodDuration`: The length of the earning period in seconds. (Default: 1200 - 20 minutes)
+*   `overflowMode`: Defines behavior when a kill exceeds the cap. Options:
+    *   `DROP` (Default): If a kill pushes you over the cap, you get $0 for that kill.
+    *   `PARTIAL`: You get the remaining amount up to the cap.
+    *   `ALLOW`: If you are under the cap, you get the full reward (even if it exceeds the limit). Future kills give $0.
 
 ## Troubleshooting
 

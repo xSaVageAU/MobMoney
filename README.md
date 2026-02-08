@@ -32,7 +32,9 @@ The config file is located at `config/mob-money.json`. It will be generated upon
     "minecraft:spider": 5.0,
     "minecraft:ender_dragon": 1000.0,
     "minecraft:wither": 500.0
-  }
+  },
+  "maxEarningsPerPeriod": 100.0,
+  "earningPeriodDuration": 1200
 }
 ```
 
@@ -44,6 +46,8 @@ The config file is located at `config/mob-money.json`. It will be generated upon
 *   `mobPrices`: A **whitelist** of mobs and their reward values.
     *   **Only mobs listed here will award money.**
     *   Use the full entity ID (e.g., `minecraft:zombie`).
+*   `maxEarningsPerPeriod`: The maximum amount a player can earn within the defined period. **Set to 0 to disable.** (Default: 100.0)
+*   `earningPeriodDuration`: The length of the earning period in seconds. (Default: 1200 - 20 minutes)
 
 ## Troubleshooting
 

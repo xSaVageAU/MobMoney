@@ -13,12 +13,17 @@ import java.util.Map;
 
 public class MobMoneyConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File CONFIG_FILE = FabricLoader.getInstance().getConfigDir().resolve("mob-money.json").toFile();
+    private static final File CONFIG_FILE = FabricLoader.getInstance().getConfigDir().resolve("mob-money.json")
+            .toFile();
 
     public String economyProvider = "savs_common_economy";
     public String currencyId = "dollar";
     public NotificationMode notificationMode = NotificationMode.CHAT;
     public Map<String, Double> mobPrices = new HashMap<>();
+
+    // Balancing Settings
+    public double maxEarningsPerPeriod = 100.0; // Set to 0 to disable
+    public int earningPeriodDuration = 1200; // Seconds (20 minutes)
 
     public enum NotificationMode {
         CHAT,
@@ -38,7 +43,9 @@ public class MobMoneyConfig {
     public static MobMoneyConfig load() {
         if (CONFIG_FILE.exists()) {
             try (FileReader reader = new FileReader(CONFIG_FILE)) {
-                return GSON.fromJson(reader, MobMoneyConfig.class);
+                MobMoneyConfig config = GSON.fromJson(reader, MobMoneyConfig.class);
+                config.save(); // Save to ensure new fields are written
+                return config;
             } catch (IOException e) {
                 e.printStackTrace();
             }

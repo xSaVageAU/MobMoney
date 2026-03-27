@@ -100,11 +100,8 @@ public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
                                         amount,
                                         entity.getType().getDescription().getString());
 
-                                if (MobMoneyMod.CONFIG.notificationMode == MobMoneyConfig.NotificationMode.ACTION_BAR) {
-                                    player.sendSystemMessage(Component.literal(message));
-                                } else {
-                                    player.sendSystemMessage(Component.literal(message));
-                                }
+                                boolean overlay = (MobMoneyMod.CONFIG.notificationMode == MobMoneyConfig.NotificationMode.ACTION_BAR);
+                                player.sendSystemMessage(Component.literal(message), overlay);
                             }
                         } else {
                             MobMoneyMod.LOGGER.error("Failed to deposit money for player: {}",

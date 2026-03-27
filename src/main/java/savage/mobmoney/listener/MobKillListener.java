@@ -3,21 +3,22 @@ package savage.mobmoney.listener;
 import eu.pb4.common.economy.api.CommonEconomy;
 import eu.pb4.common.economy.api.EconomyAccount;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.server.level.ServerPlayer;
 import savage.mobmoney.MobMoneyMod;
 
-import net.minecraft.util.Identifier;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.network.chat.Component;
+import net.minecraft.core.registries.BuiltInRegistries;
 import savage.mobmoney.config.MobMoneyConfig;
 
 public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
     @Override
     public void afterDeath(LivingEntity entity, DamageSource damageSource) {
-        if (damageSource.getAttacker() instanceof ServerPlayerEntity player) {
-            String entityId = net.minecraft.registry.Registries.ENTITY_TYPE.getId(entity.getType()).toString();
+        if (damageSource.getEntity() instanceof ServerPlayer player) {
+            String entityId = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString();
 
             // Whitelist check: Only proceed if mob is in the price list
             if (!MobMoneyMod.CONFIG.mobPrices.containsKey(entityId)) {
@@ -28,19 +29,19 @@ public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
 
             if (amount >= 1) {
                 // Check if player has reached earning limit
-                double allowedAmount = savage.mobmoney.manager.EarningsManager.calculateAllowedAmount(player.getUuid(),
+                double allowedAmount = savage.mobmoney.manager.EarningsManager.calculateAllowedAmount(player.getUUID(),
                         amount);
 
                 if (allowedAmount <= 0) {
-                    if (savage.mobmoney.manager.EarningsManager.shouldNotify(player.getUuid())) {
-                        long secondsLeft = savage.mobmoney.manager.EarningsManager.getTimeRemaining(player.getUuid());
+                    if (savage.mobmoney.manager.EarningsManager.shouldNotify(player.getUUID())) {
+                        long secondsLeft = savage.mobmoney.manager.EarningsManager.getTimeRemaining(player.getUUID());
                         String timeString;
                         if (secondsLeft >= 60) {
                             timeString = String.format("%dm %ds", secondsLeft / 60, secondsLeft % 60);
                         } else {
                             timeString = String.format("%ds", secondsLeft);
                         }
-                        player.sendMessage(Text.of("§cLimit reached. Reset in: " + timeString), true);
+                        player.sendSystemMessage(Component.literal("§cLimit reached. Reset in: " + timeString));
                     }
                     MobMoneyMod.LOGGER.debug("Player {} reached earning limit.", player.getName().getString());
                     return;
@@ -49,7 +50,7 @@ public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
                 // Use allowedAmount for the transaction, not the original amount
                 amount = allowedAmount;
                 // Use configurable currency ID
-                Identifier currencyId = Identifier.of(MobMoneyMod.CONFIG.economyProvider,
+                Identifier currencyId = Identifier.fromNamespaceAndPath(MobMoneyMod.CONFIG.economyProvider,
                         MobMoneyMod.CONFIG.currencyId);
 
                 // Verbose debugging with correct lookup
@@ -61,12 +62,10 @@ public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
                 }
 
                 // 2. Get Currency from Provider
-                var currency = provider.getCurrency(player.getCommandSource().getWorld().getServer(),
-                        currencyId.getPath());
+                var currency = provider.getCurrency(((ServerLevel) player.level()).getServer(), currencyId.getPath());
                 if (currency == null) {
                     // Try full ID if path fails
-                    currency = provider.getCurrency(player.getCommandSource().getWorld().getServer(),
-                            currencyId.toString());
+                    currency = provider.getCurrency(((ServerLevel) player.level()).getServer(), currencyId.toString());
                 }
 
                 if (currency == null) {
@@ -76,16 +75,14 @@ public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
                 }
 
                 // 3. Get Default Account ID
-                var accountId = provider.defaultAccount(player.getCommandSource().getWorld().getServer(),
-                        player.getGameProfile(), currency);
+                var accountId = provider.defaultAccount(((ServerLevel) player.level()).getServer(), player.getGameProfile(), currency);
                 if (accountId == null) {
                     MobMoneyMod.LOGGER.warn("Default account ID is null for player {}", player.getName().getString());
                     return;
                 }
 
                 // 4. Get Account
-                var account = provider.getAccount(player.getCommandSource().getWorld().getServer(),
-                        player.getGameProfile(), accountId);
+                var account = provider.getAccount(((ServerLevel) player.level()).getServer(), player.getGameProfile(), accountId);
 
                 if (account != null) {
                     try {
@@ -95,18 +92,18 @@ public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
                                 player.getName().getString(), entityId);
 
                         if (success) {
-                            savage.mobmoney.manager.EarningsManager.addEarning(player.getUuid(), amount);
+                            savage.mobmoney.manager.EarningsManager.addEarning(player.getUUID(), amount);
 
                             if (MobMoneyMod.CONFIG.notificationMode != MobMoneyConfig.NotificationMode.NONE) {
                                 String message = String.format("You earned %s%.2f for killing %s",
                                         currencyId.getPath().equals("dollar") ? "$" : "",
                                         amount,
-                                        entity.getType().getName().getString());
+                                        entity.getType().getDescription().getString());
 
                                 if (MobMoneyMod.CONFIG.notificationMode == MobMoneyConfig.NotificationMode.ACTION_BAR) {
-                                    player.sendMessage(Text.of(message), true);
+                                    player.sendSystemMessage(Component.literal(message));
                                 } else {
-                                    player.sendMessage(Text.of(message), false);
+                                    player.sendSystemMessage(Component.literal(message));
                                 }
                             }
                         } else {

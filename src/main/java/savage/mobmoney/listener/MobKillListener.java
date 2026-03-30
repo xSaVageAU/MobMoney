@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.core.registries.BuiltInRegistries;
 import savage.mobmoney.config.MobMoneyConfig;
+import java.math.BigInteger;
 
 public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
     @Override
@@ -86,7 +87,8 @@ public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
 
                 if (account != null) {
                     try {
-                        account.increaseBalance((long) amount);
+                        BigInteger rawAmount = currency.parseValue(String.valueOf(amount));
+                        account.increaseBalance(rawAmount);
                         boolean success = true; // Assume success if no exception
                         MobMoneyMod.LOGGER.info("Awarded ${} to {} for killing {}", amount,
                                 player.getName().getString(), entityId);

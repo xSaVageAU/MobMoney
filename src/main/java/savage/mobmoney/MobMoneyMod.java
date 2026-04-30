@@ -19,4 +19,12 @@ public class MobMoneyMod implements ModInitializer {
 
         ServerLivingEntityEvents.AFTER_DEATH.register(new MobKillListener());
     }
+
+    public static String formatCurrency(double amount) {
+        if (CONFIG.symbolBeforeAmount) {
+            return String.format("%s%.2f", CONFIG.currencySymbol, amount);
+        } else {
+            return String.format("%.2f%s", amount, CONFIG.currencySymbol);
+        }
+    }
 }

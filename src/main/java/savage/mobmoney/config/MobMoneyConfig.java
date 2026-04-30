@@ -18,6 +18,8 @@ public class MobMoneyConfig {
 
     public String economyProvider = "savs_common_economy";
     public String currencyId = "dollar";
+    public String currencySymbol = "$";
+    public boolean symbolBeforeAmount = true;
     public NotificationMode notificationMode = NotificationMode.CHAT;
     public Map<String, Double> mobPrices = new HashMap<>();
 

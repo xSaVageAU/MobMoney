@@ -91,16 +91,15 @@ public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
                     try {
                         account.increaseBalance((long) amount);
                         boolean success = true; // Assume success if no exception
-                        MobMoneyMod.LOGGER.info("Awarded ${} to {} for killing {}", amount,
+                        MobMoneyMod.LOGGER.info("Awarded {} to {} for killing {}", MobMoneyMod.formatCurrency(amount),
                                 player.getName().getString(), entityId);
 
                         if (success) {
                             savage.mobmoney.manager.EarningsManager.addEarning(player.getUuid(), amount);
 
                             if (MobMoneyMod.CONFIG.notificationMode != MobMoneyConfig.NotificationMode.NONE) {
-                                String message = String.format("You earned %s%.2f for killing %s",
-                                        currencyId.getPath().equals("dollar") ? "$" : "",
-                                        amount,
+                                String message = String.format("You earned %s for killing %s",
+                                        MobMoneyMod.formatCurrency(amount),
                                         entity.getType().getName().getString());
 
                                 if (MobMoneyMod.CONFIG.notificationMode == MobMoneyConfig.NotificationMode.ACTION_BAR) {
@@ -122,7 +121,7 @@ public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
                             accountId);
                 }
             } else {
-                MobMoneyMod.LOGGER.info("Mob {} is worth ${}, skipping", entityId, amount);
+                MobMoneyMod.LOGGER.info("Mob {} is worth {}, skipping", entityId, MobMoneyMod.formatCurrency(amount));
             }
         }
     }

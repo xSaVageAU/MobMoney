@@ -2,11 +2,14 @@ package savage.mobmoney.listener;
 
 import eu.pb4.common.economy.api.CommonEconomy;
 import eu.pb4.common.economy.api.EconomyAccount;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentTarget;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.server.level.ServerPlayer;
 import savage.mobmoney.MobMoneyMod;
+import savage.mobmoney.attachment.ModAttachments;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -23,6 +26,15 @@ public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
 
             // Whitelist check: Only proceed if mob is in the price list
             if (!MobMoneyMod.CONFIG.mobPrices.containsKey(entityId)) {
+                return;
+            }
+
+            // Spawn reason filter: skip payout if this mob's spawn reason is filtered out
+            EntitySpawnReason spawnReason = ((AttachmentTarget) entity).getAttachedOrElse(
+                    ModAttachments.SPAWN_REASON, EntitySpawnReason.NATURAL);
+            if (!MobMoneyMod.CONFIG.isSpawnReasonAllowed(spawnReason)) {
+                MobMoneyMod.LOGGER.debug("Skipping payout for {} - spawn reason {} is filtered", entityId,
+                        spawnReason);
                 return;
             }
 

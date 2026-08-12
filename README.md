@@ -35,7 +35,9 @@ The config file is located at `config/mob-money.json`. It will be generated upon
   },
   "maxEarningsPerPeriod": 100.0,
   "earningPeriodDuration": 1200,
-  "overflowMode": "DROP"
+  "overflowMode": "DROP",
+  "spawnReasonFilterMode": "BLACKLIST",
+  "spawnReasonFilter": ["SPAWNER", "TRIAL_SPAWNER"]
 }
 ```
 
@@ -53,6 +55,12 @@ The config file is located at `config/mob-money.json`. It will be generated upon
     *   `DROP` (Default): If a kill pushes you over the cap, you get $0 for that kill.
     *   `PARTIAL`: You get the remaining amount up to the cap.
     *   `ALLOW`: If you are under the cap, you get the full reward (even if it exceeds the limit). Future kills give $0.
+*   `spawnReasonFilterMode`: Controls whether a mob's spawn reason affects payout. Options:
+    *   `NONE`: No filtering. All spawn reasons pay out.
+    *   `BLACKLIST` (Default): Reasons listed in `spawnReasonFilter` do **not** pay out; everything else does.
+    *   `WHITELIST`: **Only** reasons listed in `spawnReasonFilter` pay out.
+*   `spawnReasonFilter`: A list of spawn reasons used by `spawnReasonFilterMode` (ignored when mode is `NONE`). Default: `["SPAWNER", "TRIAL_SPAWNER"]` — blocks payouts from mob-spawner farms while still paying out for natural spawns, breeding, structures, etc. Valid values:
+    *   `NATURAL`, `CHUNK_GENERATION`, `SPAWNER`, `STRUCTURE`, `BREEDING`, `MOB_SUMMONED`, `JOCKEY`, `EVENT`, `CONVERSION`, `REINFORCEMENT`, `TRIGGERED`, `BUCKET`, `SPAWN_ITEM_USE`, `COMMAND`, `DISPENSER`, `PATROL`, `TRIAL_SPAWNER`, `LOAD`, `DIMENSION_TRAVEL`
 
 ## Troubleshooting
 

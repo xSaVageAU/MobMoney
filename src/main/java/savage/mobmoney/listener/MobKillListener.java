@@ -9,6 +9,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.server.level.ServerPlayer;
 import savage.mobmoney.MobMoneyMod;
+import savage.mobmoney.api.MobKillContext;
+import savage.mobmoney.api.MobMoneyEvents;
 import savage.mobmoney.attachment.ModAttachments;
 
 import net.minecraft.resources.Identifier;
@@ -39,6 +41,18 @@ public class MobKillListener implements ServerLivingEntityEvents.AfterDeath {
             }
 
             double amount = MobMoneyMod.CONFIG.mobPrices.get(entityId);
+
+            // Let other mods veto or rescale this payout (e.g. per-dimension or
+            // attribute-scaled pricing) without Mob Money needing an opinion on how.
+            MobKillContext context = new MobKillContext(entity, player, spawnReason, entityId);
+
+            if (!MobMoneyEvents.PAYOUT_ELIGIBILITY.invoker().isEligible(context, true)) {
+                MobMoneyMod.LOGGER.debug("Skipping payout for {} - vetoed by a registered payout listener",
+                        entityId);
+                return;
+            }
+
+            amount = MobMoneyEvents.PRICE_MODIFIER.invoker().modifyPrice(context, amount);
 
             if (amount >= 1) {
                 // Check if player has reached earning limit

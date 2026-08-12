@@ -1,0 +1,22 @@
+{
+	"schemaVersion": 1,
+	"id": "mobmoney-testaddon",
+	"version": "1.0.0",
+	"name": "Mob Money Test Addon",
+	"description": "Dev-only addon exercising Mob Money's MobMoneyEvents extension API for manual testing. Not for release.",
+	"authors": [
+		"Savage"
+	],
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"savage.mobmoney.testaddon.MobMoneyTestAddon"
+		]
+	},
+	"depends": {
+		"mob-money": "*",
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.2",
+		"java": ">=25"
+	}
+}

@@ -62,6 +62,29 @@ The config file is located at `config/mob-money.json`. It will be generated upon
 *   `spawnReasonFilter`: A list of spawn reasons used by `spawnReasonFilterMode` (ignored when mode is `NONE`). Default: `["SPAWNER", "TRIAL_SPAWNER"]` — blocks payouts from mob-spawner farms while still paying out for natural spawns, breeding, structures, etc. Valid values:
     *   `NATURAL`, `CHUNK_GENERATION`, `SPAWNER`, `STRUCTURE`, `BREEDING`, `MOB_SUMMONED`, `JOCKEY`, `EVENT`, `CONVERSION`, `REINFORCEMENT`, `TRIGGERED`, `BUCKET`, `SPAWN_ITEM_USE`, `COMMAND`, `DISPENSER`, `PATROL`, `TRIAL_SPAWNER`, `LOAD`, `DIMENSION_TRAVEL`
 
+## Extending Mob Money (for mod developers)
+
+Mob Money stays deliberately simple in its own config - it won't grow opinionated features like
+per-dimension or per-attribute pricing directly. Instead, it exposes `MobMoneyEvents`, a small
+extension API other mods can build that kind of logic on top of, without needing to touch or fork
+Mob Money itself:
+
+*   `MobMoneyEvents.PAYOUT_ELIGIBILITY` - veto or allow a kill that already passed the mob-price
+    whitelist and spawn-reason filter.
+*   `MobMoneyEvents.PRICE_MODIFIER` - rescale the payout however you want. Multiple mods
+    registering this hook chain automatically, each receiving the running price from the last.
+
+```java
+MobMoneyEvents.PRICE_MODIFIER.register((context, price) -> {
+    // context gives you the mob, the killer, its spawn reason, and its entity ID
+    return context.mob().level().dimension().equals(Level.NETHER) ? price * 2.0 : price;
+});
+```
+
+See [`testaddon/`](testaddon/) for a complete, real example - a config-driven addon that adds
+dimension- and attribute-based pricing this way, with its own [README](testaddon/README.md)
+covering the config format in full.
+
 ## Troubleshooting
 
 If you are not receiving money:
